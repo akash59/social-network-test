@@ -61,8 +61,6 @@ public class HttpClient {
     public HttpStatusCodeType getHttpStatusCodeType(int statusCode) {
         if (statusCode >= 200 && statusCode < 300) {
             return HttpStatusCodeType.SUCCESSFUL;
-        } else if (statusCode == 201) {
-            return HttpStatusCodeType.CREATED;
         } else if (statusCode >= 300 && statusCode < 400) {
             return HttpStatusCodeType.REDIRECTION;
         } else if (statusCode >= 400 && statusCode < 500) {

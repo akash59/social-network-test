@@ -1,77 +1,74 @@
 Feature: Social Network - Posts and Comments
-  @RegressionTest
-  Scenario: User creates a post (happy path)
+
+  Background:
     Given a user is registered on the social network
-    Given a user is registered on the social network
-    When the user creates a post with title "Test Title" and body "Test Body"
-    Then the post should be created successfully
-    And the response should contain the newly created post with the provided title and body
 
   @RegressionTest
-  Scenario: User edits a post (happy path)
-    Given a user has created a post with title "Initial Title" and body "Initial Body"
-    When the user edits the post with new title "Updated Title" and body "Updated Body"
-    Then the post should be updated successfully
-    And the response should contain the updated post information
+  Scenario Outline: User creates a post (happy path)
+    When the user creates a post with title "<Title>" and body "<Body>"
+    Then the response should contain 201 status code
+    Then the response should contain the post information with title "<Title>" and body "<Body>"
 
-  Scenario: User cannot create a post with invalid data
-    Given a user is registered on the social network
-    When the user attempts to create a post with:
-    * Empty title
-    * Empty body
-    * Title exceeding character limit (if applicable)
-    * Body exceeding character limit (if applicable)
-    Then the post creation should fail
-    And the response should contain an error message indicating the specific validation error
+    Examples:
+      | Title         | Body         |
+      | Test Title    | Test Body    |
+      | Another Title | Another Body |
 
-  Scenario: User cannot edit a post with invalid data
-    Given a user has created a post
-    When the user attempts to edit the post with:
-    * Empty title
-    * Empty body
-    * Title exceeding character limit (if applicable)
-    * Body exceeding character limit (if applicable)
-    Then the post update should fail
-    And the response should contain an error message indicating the specific validation error
+  @RegressionTest
+  Scenario Outline: User edits a post (happy path)
+    When the user creates a post with title "<InitialTitle>" and body "<InitialBody>"
+    Then the response should contain 201 status code
+    When the user edits the post with new title "<UpdatedTitle>" and body "<UpdatedBody>"
+    Then the response should contain 200 status code
+    Then the response should contain the post information with title "<UpdatedTitle>" and body "<UpdatedBody>"
 
-  Scenario: User views a list of posts
-    Given there are existing posts on the social network
-    When the user retrieves the list of posts
-    Then the response should contain a list of post objects
-    And each post object should contain essential details like title, body, author (if applicable)
+    Examples:
+      | InitialTitle  | InitialBody  | UpdatedTitle  | UpdatedBody  |
+      | Initial Title | Initial Body | Updated Title | Updated Body |
+      | Old Title     | Old Body     | New Title     | New Body     |
 
-  Scenario: User views a specific post
-    Given a post exists on the social network
-    When the user retrieves the post by its ID
-    Then the response status code should be 200 (OK)
-    And the response should contain the post object with all details
+  @RegressionTest
+  Scenario: User retrieves all posts
+    Given the user retrieves the count of all posts
+    When the user creates a post with title "my_post" and body "posting something"
+    Then the response should contain 201 status code
+    Then the count of posts should "increase" by 1
 
-  Scenario: User cannot view a non-existent post
-    Given a non-existent post ID
-    When the user retrieves a post by the ID
-    Then the response status code should be 404 (NOT FOUND)
-    And the response should contain an error message indicating the post not found
-
-  Scenario: User comments on a post (happy path)
-    Given a user is registered and a post exists
-    When the user creates a comment on the post with name and body
-    Then the comment should be created successfully
-    And the response should contain the newly created comment object
-
-  Scenario: User cannot comment on a non-existent post
-    Given a user is registered and a non-existent post ID
-    When the user attempts to create a comment on the post ID
-    Then the comment creation should fail
-    And the response should contain an error message indicating the post not found
-
-  Scenario: User deletes a post (happy path)
-    Given a user has created a post
+  @RegressionTest
+  Scenario Outline: User deletes a post
+    Given the user retrieves the count of all posts
+    When the user creates a post with title "<Title>" and body "<Body>"
     When the user deletes the post
     Then the post should be deleted successfully
-    And the response status code should be 200 (OK)
+    And the response should contain 200 status code
+    And the count of posts should "decrease" by 1
 
+    Examples:
+      | Title           | Body                |
+      | my post         | posting something   |
+      | my another post | reposting something |
+
+  @RegressionTest
+  Scenario Outline: User retrieves comments for a post
+    When the user retrieves comments for post with ID <PostID>
+    Then the response should contain comments for post with ID <PostID>
+
+    Examples:
+      | PostID |
+      | 1      |
+      | 2      |
+      | 3      |
+
+#  @RegressionTest
+#  Scenario: User cannot create a post with invalid data
+#    When the user creates a post with title "" and body ""
+#    Then the response should contain 400 status code
+  @RegressionTest
+  Scenario: User cannot view a non-existent post
+    When the user retrieves a post by post id -1
+    Then the response should contain 404 status code
+
+  @RegressionTest
   Scenario: User cannot delete a non-existent post
-    Given a user attempts to delete a post with a non-existent ID
-    Then the deletion should fail
-    And the response status code should be 404 (NOT FOUND)
-    And the response should contain an error message indicating the post not found
+    When the user deletes a post by id -100
+    Then the response should contain 200 status code

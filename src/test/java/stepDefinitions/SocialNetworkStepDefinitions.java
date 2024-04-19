@@ -6,31 +6,16 @@ import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
 import models.Post;
 import org.junit.Assert;
-import utils.HttpClient;
-
-/*
-Routes
-All HTTP methods are supported. You can use http or https for your requests.
-
-GET	/posts
-GET	/posts/1
-GET	/posts/1/comments
-GET	/comments?postId=1
-POST	/posts
-PUT	/posts/1
-PATCH	/posts/1
-DELETE	/posts/1
-
- */
+import stepDefinitions.utils.TestContext;
 
 public class SocialNetworkStepDefinitions {
-    private HttpClient httpClient;
-    private Response response;
+    private TestContext testContext;
+//    private int initialPostCount;
     private Post createdPost;
 
     // Constructor to initialize HttpClient
-    public SocialNetworkStepDefinitions() {
-        this.httpClient = new HttpClient("http://jsonplaceholder.typicode.com");
+    public SocialNetworkStepDefinitions(TestContext testContext) {
+        this.testContext = testContext;
     }
 
     @Given("a user is registered on the social network")
@@ -41,48 +26,110 @@ public class SocialNetworkStepDefinitions {
     @When("the user creates a post with title {string} and body {string}")
     public void theUserCreatesAPostWithTitleAndBody(String title, String body) {
         Post postRequest = new Post(1, title, body);
-        response = httpClient.makePostRequest("/posts", postRequest);
-        createdPost = httpClient.parseResponse(response, Post.class);
-    }
-
-    @Then("the post should be created successfully")
-    public void thePostShouldBeCreatedSuccessfully() {
+        Response response = testContext.getHttpClient().makePostRequest("/posts", postRequest);
+        int postId = Integer.parseInt(response.path("id").toString());
+        testContext.setPostId(postId);
+        testContext.setResponse(response);
+        testContext.setCreatedPost(testContext.getHttpClient().parseResponse(response, Post.class));
         Assert.assertEquals("Unexpected status code", 201, response.getStatusCode());
     }
 
-    @Then("the response should contain the newly created post with the provided title and body")
-    public void theResponseShouldContainTheNewlyCreatedPostWithTheProvidedTitleAndBody() {
-        Assert.assertNotNull("No post created", createdPost);
-        // Assuming the response contains the newly created post data
-        Assert.assertEquals("Unexpected title in response", createdPost.getTitle(), createdPost.getTitle());
-        Assert.assertEquals("Unexpected body in response", createdPost.getBody(), createdPost.getBody());
+    @Then("the response should contain {int} status code")
+    public void the_post_should_successful(int status_code) {
+        Response response = testContext.getResponse();
+        Assert.assertEquals("Unexpected status code", status_code, response.getStatusCode());
     }
 
-    @Given("a user has created a post with title {string} and body {string}")
-    public void aUserHasCreatedAPostWithTitleAndBody(String title, String body) {
-        Post postRequest = new Post(1, title, body);
-        response = httpClient.makePostRequest("/posts", postRequest);
-        createdPost = httpClient.parseResponse(response, Post.class);
+    @Then("the response should contain the post information with title {string} and body {string}")
+    public void theResponseShouldContainThePostInformationWithTitleAndBody(String expectedTitle, String expectedBody) {
+        Post post = testContext.getCreatedPost();
+        Assert.assertNotNull("No post updated", post);
+        Assert.assertEquals("Unexpected title in response", expectedTitle, post.getTitle());
+        Assert.assertEquals("Unexpected body in response", expectedBody, post.getBody());
     }
 
     @When("the user edits the post with new title {string} and body {string}")
     public void theUserEditsThePostWithNewTitleAndBody(String newTitle, String newBody) {
-        createdPost.setTitle(newTitle);
-        createdPost.setBody(newBody);
-        response = httpClient.makePutRequest("/posts/1", createdPost);
-        createdPost = httpClient.parseResponse(response, Post.class);
+        Post updatedPost = testContext.getCreatedPost();
+        updatedPost.setTitle(newTitle);
+        updatedPost.setBody(newBody);
+        Response response = testContext.getHttpClient().makePutRequest("/posts/" + updatedPost.getUserId(), updatedPost);
+        testContext.setResponse(response);
+        testContext.setCreatedPost(testContext.getHttpClient().parseResponse(response, Post.class));
     }
 
-    @Then("the post should be updated successfully")
-    public void thePostShouldBeUpdatedSuccessfully() {
-        Assert.assertEquals("Unexpected status code", 200, response.getStatusCode());
+    @When("the user deletes the post")
+    public void theUserDeletesThePost() {
+        // Assuming you have a method in TestContext to retrieve the ID of the post to be deleted
+        int postId = testContext.getPostId();
+        // Make delete request to delete the post
+        Response response = testContext.getHttpClient().makeDeleteRequest("/posts/" + postId);
+        testContext.setResponse(response);
     }
 
-    @Then("the response should contain the updated post information")
-    public void theResponseShouldContainTheUpdatedPostInformation() {
-        Assert.assertNotNull("No post updated", createdPost);
-        // Assuming the response contains the updated post data
-        Assert.assertEquals("Unexpected title in response", createdPost.getTitle(), createdPost.getTitle());
-        Assert.assertEquals("Unexpected body in response", createdPost.getBody(), createdPost.getBody());
+    @Then("the post should be deleted successfully")
+    public void thePostShouldBeDeletedSuccessfully() {
+        // Verify that the response status code is 200 or 204, indicating successful deletion
+        int statusCode = testContext.getResponse().getStatusCode();
+        Assert.assertTrue(
+                "Post deletion failed",
+                statusCode == 200 || statusCode == 204
+        );
+    }
+
+    @Given("the user retrieves the count of all posts")
+    public void theUserRetrievesTheCountOfAllPosts() {
+        Response response = testContext.getHttpClient().makeGetRequest("/posts");
+//        initialPostCount = response.jsonPath().getList("$").size();
+    }
+
+    @Then("the count of posts should {string} by {int}")
+    public void theResponseShouldContainTheNewlyCreatedPost(String condition, int count) {
+        Response response = testContext.getHttpClient().makeGetRequest("/posts");
+        int currentPostCount = response.jsonPath().getList("$").size();
+        /*
+        Important: the resource will not be really updated on the server, but it will be faked as if.
+        So, disabling the count check in the below implementation.
+         */
+
+        /*
+        if (condition.strip().equalsIgnoreCase("increase")) {
+            Assert.assertEquals(
+                    "The count of posts did not increase by 1",
+                    initialPostCount + count,
+                    currentPostCount
+            );
+        } else if (condition.strip().equalsIgnoreCase("decrease")) {
+            Assert.assertEquals(
+                    "The count of posts did not decrease by 1",
+                    initialPostCount - count,
+                    currentPostCount
+            );
+        }*/
+    }
+
+    @When("the user retrieves a post by post id {int}")
+    public void theUserRetrievesPostByID(int postId) {
+        Response response = testContext.getHttpClient().makeGetRequest("/posts/" + postId);
+        testContext.setResponse(response);
+    }
+
+    @When("the user deletes a post by id {int}")
+    public void theUserDeletesPostByID(int postId) {
+        Response response = testContext.getHttpClient().makeDeleteRequest("/posts/" + postId);
+        testContext.setResponse(response);
+    }
+
+    @When("the user retrieves comments for post with ID {int}")
+    public void theUserRetrievesCommentsForPostWithID(int postId) {
+        Response response = testContext.getHttpClient().makeGetRequest("/posts/" + postId + "/comments");
+        testContext.setResponse(response);
+    }
+
+    @Then("the response should contain comments for post with ID {int}")
+    public void theResponseShouldContainCommentsForPostWithID(int postId) {
+        Response response = testContext.getResponse();
+        String responseBody = response.getBody().asString();
+        Assert.assertTrue("Response does not contain any comments", responseBody.length() > 0);
     }
 }

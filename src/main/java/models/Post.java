@@ -1,13 +1,22 @@
 package models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
+
+import java.util.List;
 
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
+@NonNull
+@NoArgsConstructor
 public class Post {
+
+    private int id; // Server-generated ID
+    @NonNull
     private int userId;
+    @NonNull
     private String title;
+    @NonNull
     private String body;
+    private List<Comment> comments;
 
 }
