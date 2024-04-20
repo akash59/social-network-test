@@ -1,20 +1,17 @@
-package stepDefinitions;
+package stepDefinitions.posts;
 
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 import models.Post;
 import org.junit.Assert;
 import stepDefinitions.utils.TestContext;
 
-public class SocialNetworkStepDefinitions {
+public class PostSteps {
     private TestContext testContext;
-//    private int initialPostCount;
-    private Post createdPost;
 
-    // Constructor to initialize HttpClient
-    public SocialNetworkStepDefinitions(TestContext testContext) {
+    public PostSteps(TestContext testContext) {
         this.testContext = testContext;
     }
 
@@ -60,16 +57,13 @@ public class SocialNetworkStepDefinitions {
 
     @When("the user deletes the post")
     public void theUserDeletesThePost() {
-        // Assuming you have a method in TestContext to retrieve the ID of the post to be deleted
         int postId = testContext.getPostId();
-        // Make delete request to delete the post
         Response response = testContext.getHttpClient().makeDeleteRequest("/posts/" + postId);
         testContext.setResponse(response);
     }
 
     @Then("the post should be deleted successfully")
     public void thePostShouldBeDeletedSuccessfully() {
-        // Verify that the response status code is 200 or 204, indicating successful deletion
         int statusCode = testContext.getResponse().getStatusCode();
         Assert.assertTrue(
                 "Post deletion failed",
@@ -80,7 +74,7 @@ public class SocialNetworkStepDefinitions {
     @Given("the user retrieves the count of all posts")
     public void theUserRetrievesTheCountOfAllPosts() {
         Response response = testContext.getHttpClient().makeGetRequest("/posts");
-//        initialPostCount = response.jsonPath().getList("$").size();
+        //  initialPostCount = response.jsonPath().getList("$").size();
     }
 
     @Then("the count of posts should {string} by {int}")
@@ -118,18 +112,5 @@ public class SocialNetworkStepDefinitions {
     public void theUserDeletesPostByID(int postId) {
         Response response = testContext.getHttpClient().makeDeleteRequest("/posts/" + postId);
         testContext.setResponse(response);
-    }
-
-    @When("the user retrieves comments for post with ID {int}")
-    public void theUserRetrievesCommentsForPostWithID(int postId) {
-        Response response = testContext.getHttpClient().makeGetRequest("/posts/" + postId + "/comments");
-        testContext.setResponse(response);
-    }
-
-    @Then("the response should contain comments for post with ID {int}")
-    public void theResponseShouldContainCommentsForPostWithID(int postId) {
-        Response response = testContext.getResponse();
-        String responseBody = response.getBody().asString();
-        Assert.assertTrue("Response does not contain any comments", responseBody.length() > 0);
     }
 }
