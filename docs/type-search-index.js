@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"models","l":"Comment"},{"p":"stepDefinitions.comments","l":"CommentSteps"},{"p":"utils","l":"HttpClient"},{"p":"utils","l":"HttpStatusCodeType"},{"p":"models","l":"Post"},{"p":"stepDefinitions.posts","l":"PostSteps"},{"p":"stepDefinitions.utils","l":"TestContext"},{"p":"runners","l":"TestRunner"}]
