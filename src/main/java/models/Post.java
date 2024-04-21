@@ -8,6 +8,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @NonNull
 @NoArgsConstructor
+
+/**
+ * Represents a Post entity.
+ */
 public class Post {
 
     private int id; // Server-generated ID

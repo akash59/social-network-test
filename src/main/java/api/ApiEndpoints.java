@@ -1,4 +1,4 @@
-package endpoints;
+package api;
 
 public class ApiEndpoints {
     public static final String POSTS = "/posts";
