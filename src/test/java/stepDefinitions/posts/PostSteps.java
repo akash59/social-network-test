@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stepDefinitions.utils.TestContext;
 
+import java.util.ArrayList;
+
 public class PostSteps {
 
     private static final Logger logger = LoggerFactory.getLogger(PostSteps.class);
@@ -34,7 +36,7 @@ public class PostSteps {
      */
     @When("the user creates a post with title {string} and body {string}")
     public void theUserCreatesAPostWithTitleAndBody(String title, String body) {
-        Post postRequest = new Post(1, title, body);
+        Post postRequest = new Post(1, title, body, new ArrayList<>());
         Response response = testContext.getHttpClient().makePostRequest(ApiUrlBuilder.buildPostUrl(), postRequest);
         int postId = Integer.parseInt(response.path("id").toString());
         testContext.setPostId(postId);

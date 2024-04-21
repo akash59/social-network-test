@@ -34,6 +34,12 @@ Feature: Social Network - Posts and Comments
     Then the response should contain 201 status code
     Then the count of posts should "increase" by 1
 
+  Scenario: Retrieve all posts for a user
+    Given the user wants to retrieve all posts for user with ID 2
+    When the user sends a GET request to the /users/<userId>/posts endpoint
+    Then the response status code should be 200
+    And the response should contain posts for user with ID "<userId>"
+
   @RegressionTest
   Scenario Outline: User deletes a post
     Given the user retrieves the count of all posts
@@ -59,10 +65,6 @@ Feature: Social Network - Posts and Comments
       | 2      |
       | 3      |
 
-#  @RegressionTest
-#  Scenario: User cannot create a post with invalid data
-#    When the user creates a post with title "" and body ""
-#    Then the response should contain 400 status code
   @RegressionTest
   Scenario: User cannot view a non-existent post
     When the user retrieves a post by post id -1

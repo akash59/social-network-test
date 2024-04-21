@@ -2,6 +2,7 @@ package stepDefinitions.utils;
 
 import io.restassured.response.Response;
 import models.Post;
+import models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClient;
@@ -14,6 +15,7 @@ public class TestContext {
     private HttpClient httpClient = null;
     private Response response;
     private Post createdPost;
+    private User user;
     private int postId; // Store the post ID
     private static final Logger logger = LoggerFactory.getLogger(TestContext.class);
 
@@ -86,6 +88,15 @@ public class TestContext {
      */
     public Post getCreatedPost() {
         return createdPost;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+
     }
 }
 

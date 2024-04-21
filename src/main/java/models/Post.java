@@ -21,6 +21,7 @@ public class Post {
     private String title;
     @NonNull
     private String body;
+    @NonNull
     private List<Comment> comments;
 
 }

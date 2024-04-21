@@ -14,5 +14,11 @@ public class ApiUrlBuilder {
         return ApiEndpoints.POSTS + "/" + postId + ApiEndpoints.COMMENTS;
     }
 
-    // Add other methods for building URLs as needed
+    public static String buildUserUrl() {
+        return ApiEndpoints.USERS;
+    }
+
+    public static String buildUserUrl(int userId) {
+        return ApiEndpoints.USERS + "/" + userId;
+    }
 }
