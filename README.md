@@ -8,11 +8,12 @@ This API test framework is developed as part of JPMC test assignment.
 
 - Supports API Test Automation in a BDD fashion.
 - Uses Cucumber PicoContainer library for Dependency Injection.
-- Supports logs generation to debug or analyse any failures during the test run.
+- Support logs generation to debug or analyse any failures during the test run.
 - Provides HTML test reports for test runs for easy reports analysis.
 - Can support parallel execution if needed without any code change.
 - Promotes test steps reusability and test case extendability.
-- Post Merge CI support: Using Docker and Github Actions, a build is generated on each MR Merge and all available tests are executed against that build to ensure none of the existing functionality breaks.
+- Post Merge CI support: Using Docker and GitHub Actions, a build is generated on each MR Merge
+  and all available tests are executed against that build to ensure none of the existing functionality breaks.
 
 
 
@@ -145,7 +146,7 @@ public class TestContext {
 }
 ```
 
-## HttpClient class is proviced that acts as a common interface for the test layer.
+## HttpClient class is provided that acts as a common interface for the test layer.
 ```java
 public class HttpClient {
     private final String baseUrl;
@@ -173,21 +174,26 @@ public class HttpClient {
                 .contentType(contentType)
                 .baseUri(baseUrl);
     }
+}
 ```
 
 
 ## Running Tests
 
-To run tests, run the following command
+To run tests, run the following commands. Please make sure that you have Java11 and Maven installed locally.
 
 ```bash
   git clone git@github.com:akash59/social-network-test.git
   mvn clean verify
 ```
 
+Another way of running tests is via `docker` provided the host machine has docker installed. Run the following commands:
+```bash
+  docker pull akash59/social-nw-tests
+  docker run -v ${HOME}/reports:/home/app/TestReports social-nw-tests
+```
 
 ## 🔗 Links
 - [CI: Build/Publish job run example](https://github.com/akash59/social-network-test/actions/runs/8772299689/job/24071068188)
 - [CI: Test job run example](https://github.com/akash59/social-network-test/actions/runs/8772299689/job/24071075229)
 - [CI: HTML Test reports](https://github.com/akash59/social-network-test/actions/runs/8772920492/artifacts/1433240665)
-
